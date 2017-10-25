@@ -11,6 +11,19 @@ import UIKit
 class ViewController: UIViewController {
     @IBOutlet weak var rpnSwitch: UISwitch!
     @IBOutlet weak var displayOutput: UILabel!
+    @IBOutlet weak var btnMod: UIButton!
+    @IBOutlet weak var btnDiv: UIButton!
+    @IBOutlet weak var btnMult: UIButton!
+    @IBOutlet weak var btnSub: UIButton!
+    @IBOutlet weak var btnAdd: UIButton!
+    @IBOutlet weak var btnEqual: UIButton!
+    @IBOutlet weak var btnClear: UIButton!
+    @IBOutlet weak var btnAvg: UIButton!
+    @IBOutlet weak var btnFact: UIButton!
+    @IBOutlet weak var btnCount: UIButton!
+    @IBOutlet weak var btnNeg: UIButton!
+    @IBOutlet weak var btnSpace: UIButton!
+    
     
     var nums: [String] = []
     var numForArr = ""
@@ -19,7 +32,43 @@ class ViewController: UIViewController {
     var pressedEq = false
     var currentOperation = ""
     var hasDecimal = false
+    var negative = false
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        rpnSwitch.setOn(false, animated: false)
+        displayOutput.text = ""
+        btnUI(btn: btnMod)
+        btnUI(btn: btnDiv)
+        btnUI(btn: btnMult)
+        btnUI(btn: btnSub)
+        btnUI(btn: btnAdd)
+        btnUI(btn: btnClear)
+        btnUI(btn: btnEqual)
+        btnUI(btn: btnAvg)
+        btnUI(btn: btnFact)
+        btnUI(btn: btnCount)
+        btnUI(btn: btnNeg)
+        btnUI(btn: btnSpace)
+        // Do any additional setup after loading the view, typically from a nib.
+    }
+    
+    func btnUI(btn: UIButton) {
+        btn.layer.cornerRadius = 10
+        btn.clipsToBounds = true
+    }
+
+    @IBAction func negNum(_ sender: Any) {
+        displayOutput.text = displayOutput.text! + "-"
+        negative = !negative
+        NSLog(String(negative))
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
     @IBAction func btnNumPressed(_ sender: UIButton) {
         NSLog("\((sender.titleLabel!.text)!) was pressed")
         if pressedEq == true {
@@ -67,46 +116,61 @@ class ViewController: UIViewController {
     
     func completeOperation(first: Int) {
         var tot: Int = first
-        for i in 1...(nums.count - 1) {
-            let num = Int(nums[i])!
-            switch operand {
-            case "+":
-                tot += num
-            case "-":
-                tot -= num
-            case "*":
-                tot *= num
-            case "/":
-                tot = tot / num
-            case "%":
-                tot = tot % num
-            default:
-                NSLog("Operand not found")
+        if nums.count - 1 == 0 {
+            calcError()
+        } else {
+            for i in 1...(nums.count - 1) {
+                var num = Int(nums[i])!
+                NSLog(String(nums[i].contains("-")))
+                if negative == true {
+                    num = num * -1
+                }
+                switch operand {
+                case "+":
+                    tot += num
+                case "-":
+                    tot -= num
+                case "*":
+                    tot *= num
+                case "/":
+                    tot = tot / num
+                case "%":
+                    tot = tot % num
+                default:
+                    NSLog("Operand not found")
+                }
             }
+            displayOutput.text = String(tot)
         }
-        displayOutput.text = String(tot)
     }
     
     func completeOperation(first: Double) {
         var tot = first
-        for i in 1...(nums.count - 1) {
-            let num = Double(nums[i])!
-            switch operand {
-            case "+":
-                tot += num
-            case "-":
-                tot -= num
-            case "*":
-                tot *= num
-            case "/":
-                tot = tot / num
-            case "%":
-                tot = tot.truncatingRemainder(dividingBy: num)
-            default:
-                NSLog("Operand not found")
+        if nums.count - 1 == 0 {
+            calcError()
+        } else {
+            for i in 1...(nums.count - 1) {
+                var num = Double(nums[i])!
+                if negative == true {
+                    num = num * -1
+                }
+                switch operand {
+                case "+":
+                    tot += num
+                case "-":
+                    tot -= num
+                case "*":
+                    tot *= num
+                case "/":
+                    tot = tot / num
+                case "%":
+                    tot = tot.truncatingRemainder(dividingBy: num)
+                default:
+                    NSLog("Operand not found")
+                }
             }
+            displayOutput.text = String(tot)
         }
-        displayOutput.text = String(tot)
     }
     
     @IBAction func btnSpacePressed(_ sender: UIButton) {
@@ -204,28 +268,23 @@ class ViewController: UIViewController {
             displayOutput.text = displayOutput.text! + " count "
         }
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        rpnSwitch.setOn(false, animated: false)
-        displayOutput.text = ""
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
 
     func avg() {
         var tot:Double = 0.0;
         for i in nums {
-            tot += Double(i)!
+            var num = 0.0
+            if negative == true {
+                num = Double(i)! * -1.0
+            } else {
+                num = Double(i)!
+            }
+            tot += num
         }
         tot = tot / Double(nums.count)
         nums = []
         NSLog("avg: " + String(tot))
         displayOutput.text = String(tot)
+        pressedEq = true
     }
     
     func calcError() {
@@ -242,6 +301,7 @@ class ViewController: UIViewController {
         pressedEq = false
         currentOperation = ""
         hasDecimal = false
+        negative = false
     }
 
 }
